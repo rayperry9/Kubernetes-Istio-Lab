@@ -2,7 +2,7 @@
 
 curl -L https://istio.io/downloadIstio | sh -
 
-export PATH=$PWD/bin:$PATH
+cp install.sh istio-1.9.4 && cd istio-1.9.4 && export PATH=$PWD/bin:$PATH
 
 istioctl install --set profile=demo -y
 

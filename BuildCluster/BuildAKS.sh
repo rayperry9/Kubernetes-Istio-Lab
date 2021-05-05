@@ -14,7 +14,7 @@ password=$(cat cred.txt | grep password | cut -d ":" -f2 | tr -d '"' | tr -d ','
 sleep 10
 
 echo "Create the k8s Cluster"
-echo "(Don’t be paro, this will take some minutes to complete)"
+echo "(Don’t worry, this will take some minutes to complete)"
 az aks create --resource-group student-group --name studentAKSCluster --node-count 1 --location northeurope --service-principal $appId --generate-ssh-keys --client-secret $password --generate-ssh-keys
 
 echo "Connect local kubectl client to AKS cluster"

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Blood Pressure Calculator</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <style>
+      .alert {
+        background: transparent;
+        padding: 1rem;
+        border-radius: 5px;
+        color: white;
+        margin: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h3>Blood Pressure Calculator Blue Deployment v1</h3>
+    </div>
+
+    <!-- Form -->
+    <div class="container"`>
+<!--      <form action="/send" method="POST">-->
+        <label for="email">Email Address</label>
+        <input
+          type="text"
+          placeholder="Email Address"
+          class="u-full-width"
+          name="email"
+          id="email"
+        />
+
+        <label for="systolic_value">Systolic Value</label>
+        <input
+          type="text"
+          placeholder="Systolic Value"
+          class="u-full-width"
+          name="systolic_value"
+          id="systolic_value"
+        />
+
+        <label for="diastolic_value">Diastolic Value</label>
+        <input
+          type="text"
+          placeholder="Diastolic Value"
+          class="u-full-width"
+          name="diastolic_value"
+          id="diastolic_value"
+        />
+
+        <input type="submit" value="Calculate Blood Pressure" id="calc_btn" />
+        <br />
+        <div class="alert" id="alert">
+
+        </div>
+
+        <div id="previousHistory">
+            <!--Empty div where we inject users historical data-->
+        </div>
+
+<!--      </form>-->
+    </div>
+    <script>
+
+            const ip = document.location.host;
+
+            function addButtonListener() {
+                document.getElementById("calc_btn").addEventListener("click", function() {
+                console.log("button was clicked");
+                const email = document.getElementById("email").value.trim();
+                const systolic_value = document.getElementById("systolic_value").value.trim();
+                const diastolic_value = document.getElementById("diastolic_value").value.trim();
+                console.log("Found email: " + email)
+                console.log("Found systolic_value: " + systolic_value)
+                console.log("Found diastolic_value: " + diastolic_value)
+                $.ajax({
+                    headers: { 'Content-Type': 'application/json' },
+                    url: "http://" + ip + "/api",
+                    dataType: 'json',
+                    type: 'POST',
+                    data: JSON.stringify({ "email" : email, "systolic_value" : systolic_value, "diastolic_value" : diastolic_value }),
+                    success: function(data) {
+                        console.log("Email from JSON: " + data["Email"]);
+                        console.log("systolic_value from JSON: " + data["Systolic Value"]);
+                        console.log("diastolic_value from JSON: " + data["Diastolic Value"]);
+                        console.log("diastolic_value from JSON: " + data["Blood Pressure"]);
+
+                        alertColor(data["Blood Pressure"]);
+
+                        $.ajax({
+                        headers: { 'Content-Type': 'application/json' },
+                        url: "http://" + ip + "/api?email=" + email,
+                        type: 'GET',
+                        success: function(listData) {
+
+                            let tableElements = "<table><tr><th>Timestamp</th><th>Email</th><th>Systolic Value</th><th>Diastolic Value</th><th>Blood Pressure</th></tr>"
+                            for(i = 0; i < listData.length; i++) {
+                                tableElements += "<tr>"
+                                tableElements += "<td>" + listData[i]["Timestamp"] + "</td>"
+                                tableElements += "<td>" + listData[i]["Email"] + "</td>"
+                                tableElements += "<td>" + listData[i]["Systolic Value"] + "</td>"
+                                tableElements += "<td>" + listData[i]["Diastolic Value"] + "</td>"
+                                tableElements += "<td>" + listData[i]["Blood Pressure"] + "</td>"
+                                tableElements += "</tr>"
+                            }
+                            document.getElementById("previousHistory").innerHTML = tableElements + "</table>"
+                         }})
+                        }
+                    })
+                })
+            }
+
+            function alertColor (bprisk) {
+
+               document.getElementById("alert").innerHTML = bprisk;
+
+              if (bprisk == "High blood pressure") {
+                  document.getElementById("alert").style.backgroundColor="#f44336";
+              } else if (bprisk == "Pre-high blood pressure") {
+                  document.getElementById("alert").style.backgroundColor="#ff9800";
+              } else if (bprisk == "Ideal blood pressure") {
+                  document.getElementById("alert").style.backgroundColor="#4CAF50";
+              } else if (bprisk == "Low blood pressure") {
+                  document.getElementById("alert").style.backgroundColor="#2196F3";
+              } else if (bprisk == "Invalid Systolic Value, please re-enter value.") {
+                  document.getElementById("alert").style.backgroundColor="#2196F3";
+              } else if (bprisk == "Invalid Diastolic Value, please re-enter value.") {
+                  document.getElementById("alert").style.backgroundColor="#2196F3";
+              } else if (bprisk == "Please only enter numbers") {
+                  document.getElementById("alert").style.backgroundColor="#2196F3";
+              }
+            }
+
+            window.onload = addButtonListener();
+    </script>
+  </body>
+</html>
